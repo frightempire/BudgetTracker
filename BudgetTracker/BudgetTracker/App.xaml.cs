@@ -9,10 +9,17 @@ namespace BudgetTracker
 {
     public partial class App : Application
     {
+        public const string dbName = "budgetDb.db";
+        public static DataBase dataBase;
+
+        public static DataBase GetDataBase()
+        {
+            return dataBase ?? (dataBase = new DataBase(dbName));
+        }
+
         public App()
         {
             InitializeComponent();
-
             MainPage = new BudgetTracker.MainPage();
         }
 
