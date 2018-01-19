@@ -15,6 +15,8 @@ namespace BudgetTracker.DataBaseModels
 
         public string ConsumptionName { get; set; }
 
+        public double ConsumptionPrice { get; set; }
+
         [Indexed]
         public int DayId { get; set; }
     }

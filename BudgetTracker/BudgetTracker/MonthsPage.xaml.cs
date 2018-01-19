@@ -16,10 +16,28 @@ namespace BudgetTracker
         public MonthsPage()
         {
             IEnumerable<Month> months = App.GetDataBase().GetMonths();
-            var infoBox = new DataTemplate(typeof(TextCell));
+            MonthsListView.ItemsSource = months;
 
-            infoBox.SetBinding(TextCell.TextProperty, new Binding("MonthDate").StringFormat);
-            infoBox.SetBinding(TextCell.DetailProperty, new Binding());
+            var monthInfoBox = new DataTemplate(typeof(TextCell));
+
+            monthInfoBox.SetBinding(TextCell.TextProperty, new Binding("MonthDate", stringFormat:"{0:D}"));
+            monthInfoBox.SetValue(TextCell.DetailProperty, GetMonthlyConsumption(BindingContext as Month));
+
+            MonthsListView.ItemTemplate = monthInfoBox;
+        }
+
+        public double GetMonthlyConsumption(Month month)
+        {
+            DataBase db = App.GetDataBase();
+            IEnumerable<Day> days = db.GetDays(month);
+            return days.Sum(d => db.GetConsumptions(d).Sum(c => c.ConsumptionPrice));
+        }
+
+        async private void MonthsListView_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            var daysPage = new DaysPage();
+            daysPage.BindingContext = e.Item;
+            await Navigation.PushAsync(daysPage);
         }
     }
 }

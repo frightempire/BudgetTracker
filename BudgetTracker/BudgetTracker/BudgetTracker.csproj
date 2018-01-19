@@ -42,6 +42,9 @@
     <Compile Include="DataBaseModels\Consumption.cs" />
     <Compile Include="DataBaseModels\Day.cs" />
     <Compile Include="DataBaseModels\Month.cs" />
+    <Compile Include="DaysPage.xaml.cs">
+      <DependentUpon>DaysPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="IDbHelper.cs" />
     <Compile Include="MonthsPage.xaml.cs">
       <DependentUpon>MonthsPage.xaml</DependentUpon>
@@ -82,6 +85,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="MonthsPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DaysPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </EmbeddedResource>
