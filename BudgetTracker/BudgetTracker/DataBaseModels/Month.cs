@@ -13,8 +13,6 @@ namespace BudgetTracker.DataBaseModels
         [PrimaryKey, AutoIncrement, Unique]
         public int Id { get; set; }
 
-        public string MonthName { get; set; }
-
         public DateTime MonthDate { get; set; }
     }
 }

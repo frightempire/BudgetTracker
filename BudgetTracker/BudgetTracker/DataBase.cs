@@ -37,20 +37,19 @@ namespace BudgetTracker
             return dataBase.Table<Consumption>().Where(c => c.DayId == day.Id);
         }
 
-        public void SaveMonth(Month item)
+        public void AddMonth()
         {
-            if (item.Id != 0)
-                dataBase.Update(item);
-            else
-                dataBase.Insert(item);
+            dataBase.Insert(new Month {
+                MonthDate = DateTime.Today
+            });
         }
 
-        public void SaveDay(Day item)
+        public void AddDay(Month month)
         {
-            if (item.Id != 0)
-                dataBase.Update(item);
-            else
-                dataBase.Insert(item);
+            dataBase.Insert(new Day {
+                DayDate = DateTime.Today,
+                MonthId = month.Id
+            });
         }
 
         public void SaveConsumption(Consumption item)

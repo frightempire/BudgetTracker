@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BudgetTracker.DataBaseModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,12 +21,22 @@ namespace BudgetTracker
         public App()
         {
             InitializeComponent();
-            MainPage = new BudgetTracker.MainPage();
+            MainPage = new MonthsPage();
         }
 
         protected override void OnStart()
         {
-            // Handle when your app starts
+            DataBase db = GetDataBase();
+
+            IEnumerable<Month> months = db.GetMonths();
+            if (months.Count() == 0 || months.OrderBy(m => m.MonthDate).Last().MonthDate.Month != DateTime.Today.Month)
+                db.AddMonth();
+
+            Month lastMonth = months.OrderBy(m => m.MonthDate).Last();
+
+            IEnumerable<Day> days = db.GetDays(lastMonth);
+            if (days.Count() == 0 || days.OrderBy(d => d.DayDate).Last().DayDate.Day != DateTime.Today.Day)
+                db.AddDay(lastMonth);
         }
 
         protected override void OnSleep()
