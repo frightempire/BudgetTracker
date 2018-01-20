@@ -52,12 +52,9 @@ namespace BudgetTracker
             });
         }
 
-        public void SaveConsumption(Consumption item)
+        public void AddConsumption(Consumption item)
         {
-            if (item.Id != 0)
-                dataBase.Update(item);
-            else
-                dataBase.Insert(item);
+            dataBase.Insert(item);
         }
     }
 }

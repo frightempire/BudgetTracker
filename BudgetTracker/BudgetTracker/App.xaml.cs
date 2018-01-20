@@ -1,4 +1,5 @@
 ﻿using BudgetTracker.DataBaseModels;
+using BudgetTracker.Pages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace BudgetTracker
         public App()
         {
             InitializeComponent();
-            MainPage = new MonthsPage();
+            MainPage = new NavigationPage(new MonthsPage());
         }
 
         protected override void OnStart()

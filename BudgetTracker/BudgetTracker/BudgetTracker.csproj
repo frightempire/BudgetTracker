@@ -38,15 +38,21 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\AddConsModal.xaml.cs">
+      <DependentUpon>AddConsModal.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ConsumptionsPage.xaml.cs">
+      <DependentUpon>ConsumptionsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DataBase.cs" />
     <Compile Include="DataBaseModels\Consumption.cs" />
     <Compile Include="DataBaseModels\Day.cs" />
     <Compile Include="DataBaseModels\Month.cs" />
-    <Compile Include="DaysPage.xaml.cs">
+    <Compile Include="Pages\DaysPage.xaml.cs">
       <DependentUpon>DaysPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="IDbHelper.cs" />
-    <Compile Include="MonthsPage.xaml.cs">
+    <Compile Include="Pages\MonthsPage.xaml.cs">
       <DependentUpon>MonthsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -84,13 +90,25 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="MonthsPage.xaml">
+    <EmbeddedResource Include="Pages\MonthsPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="DaysPage.xaml">
+    <EmbeddedResource Include="Pages\DaysPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Pages\ConsumptionsPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Pages\AddConsModal.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </EmbeddedResource>

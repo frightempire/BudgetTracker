@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace BudgetTracker
+namespace BudgetTracker.Pages
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MonthsPage : ContentPage
@@ -19,7 +19,6 @@ namespace BudgetTracker
             MonthsListView.ItemsSource = months;
 
             var monthInfoBox = new DataTemplate(typeof(TextCell));
-
             monthInfoBox.SetBinding(TextCell.TextProperty, new Binding("MonthDate", stringFormat:"{0:D}"));
             monthInfoBox.SetValue(TextCell.DetailProperty, GetMonthlyConsumption(BindingContext as Month));
 
