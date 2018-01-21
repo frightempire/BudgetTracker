@@ -3,9 +3,5 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BudgetTracker.Pages.ConsumptionsPage">
     <ContentPage.Content>
-        <ScrollView>
-            <ListView x:Name="ConsumptionsListView"/>
-            <Button x:Name="AddConsButton" Clicked="AddConsButton_Clicked"/>
-        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

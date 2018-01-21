@@ -13,29 +13,43 @@ namespace BudgetTracker.Pages
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class DaysPage : ContentPage
     {
-        public DaysPage()
+        public DaysPage(Month month)
         {
-            IEnumerable<Day> days = App.GetDataBase().GetDays(BindingContext as Month);
-            DaysListView.ItemsSource = days;
+            Label monthlyConsumptions = new Label();
+            monthlyConsumptions.Text = GetMonthlyConsumption(month).ToString();
+
+            IEnumerable<Day> days = App.GetDataBase().GetDays(month);
 
             var dayInfoBox = new DataTemplate(typeof(TextCell));
-            dayInfoBox.SetBinding(TextCell.TextProperty, new Binding("DayDate", stringFormat: "0:MMMM d"));
-            dayInfoBox.SetValue(TextCell.DetailProperty, GetDailyComsumptions(BindingContext as Day));
+            dayInfoBox.SetBinding(TextCell.TextProperty, new Binding("DayDate", stringFormat: "{0:MMMM d}"));
 
-            DaysListView.ItemTemplate = dayInfoBox;
+            ListView daysListView = new ListView
+            {
+                ItemsSource = days,
+                ItemTemplate = dayInfoBox
+            };
+
+            Content = new StackLayout
+            {
+                Children =
+                {
+                    monthlyConsumptions,
+                    daysListView
+                }
+            };
+
+            daysListView.ItemSelected += (o, e) =>
+            {
+                var consumptionsPage = new ConsumptionsPage(e.SelectedItem as Day);
+                Navigation.PushAsync(consumptionsPage);
+            };
         }
 
-        public double GetDailyComsumptions(Day day)
+        public double GetMonthlyConsumption(Month month)
         {
             DataBase db = App.GetDataBase();
-            return db.GetConsumptions(day).Sum(c => c.ConsumptionPrice);
-        }
-
-        async private void DaysListView_ItemTapped(object sender, ItemTappedEventArgs e)
-        {
-            var consumptionsPage = new ConsumptionsPage();
-            consumptionsPage.BindingContext = e.Item;
-            await Navigation.PushAsync(consumptionsPage);
+            IEnumerable<Day> days = db.GetDays(month);
+            return days.Sum(d => db.GetConsumptions(d).Sum(c => c.ConsumptionPrice));
         }
     }
 }

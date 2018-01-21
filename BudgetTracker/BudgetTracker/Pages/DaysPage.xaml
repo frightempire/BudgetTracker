@@ -3,8 +3,5 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BudgetTracker.Pages.DaysPage">
     <ContentPage.Content>
-        <ScrollView>
-            <ListView x:Name="DaysListView" ItemTapped="DaysListView_ItemTapped"/>
-        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

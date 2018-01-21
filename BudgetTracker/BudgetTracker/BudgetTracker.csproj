@@ -38,9 +38,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\AddConsModal.xaml.cs">
-      <DependentUpon>AddConsModal.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Pages\ConsumptionsPage.xaml.cs">
       <DependentUpon>ConsumptionsPage.xaml</DependentUpon>
     </Compile>
@@ -103,12 +100,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Pages\ConsumptionsPage.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Pages\AddConsModal.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </EmbeddedResource>

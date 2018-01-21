@@ -13,23 +13,128 @@ namespace BudgetTracker.Pages
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ConsumptionsPage : ContentPage
     {
-        public ConsumptionsPage()
+        public ConsumptionsPage(Day day)
         {
-            IEnumerable<Consumption> comsunptions = App.GetDataBase().GetConsumptions(BindingContext as Day);
-            ConsumptionsListView.ItemsSource = comsunptions;
+            Label dailyComsumptions = new Label();
+            dailyComsumptions.Text = GetDailyComsumptions(day).ToString();
+
+            IEnumerable<Consumption> comsumptions = App.GetDataBase().GetConsumptions(day);
 
             var consumptionInfoBox = new DataTemplate(typeof(TextCell));
             consumptionInfoBox.SetBinding(TextCell.TextProperty, new Binding("ConsumptionName"));
-            consumptionInfoBox.SetBinding(TextCell.DetailProperty, new Binding("ConsumptionPrice", stringFormat: "0:C"));
+            consumptionInfoBox.SetBinding(TextCell.DetailProperty, new Binding("ConsumptionPrice", stringFormat: "{0:C}"));
 
-            ConsumptionsListView.ItemTemplate = consumptionInfoBox;
+            ListView consumptionsListView = new ListView
+            {
+                ItemsSource = comsumptions,
+                ItemTemplate = consumptionInfoBox
+            };
+
+            Button addConsButton = new Button
+            {
+                Text = "Add consumption"
+            };
+
+            StackLayout pageLayout = new StackLayout
+            {
+                Children =
+                {
+                    dailyComsumptions,
+                    consumptionsListView,
+                    addConsButton
+                }
+            };
+
+            // Modal window
+            Label topModalLabel = new Label
+            {
+                BackgroundColor = Color.Black,
+                HorizontalOptions = LayoutOptions.Fill,
+                Text = "Add consumption"
+            };
+
+            Entry consNameEntry = new Entry
+            {
+                Placeholder = "Name"
+            };
+
+            Entry consPriceEntry = new Entry
+            {
+                Placeholder = "Price"
+            };
+
+            Button okButton = new Button
+            {
+                Text = "OK"
+            };
+
+            Button cancelButton = new Button
+            {
+                Text = "Cancel"
+            };
+
+            StackLayout modalButtonsLayout = new StackLayout
+            {
+                Children =
+                {
+                    okButton,
+                    cancelButton
+                }
+            };
+
+            ContentView modalContent = new ContentView
+            {
+                IsVisible = false,
+                Content = new StackLayout
+                {
+                    Children =
+                    {
+                        topModalLabel,
+                        consNameEntry,
+                        consPriceEntry,
+                        modalButtonsLayout
+                    }
+                }
+            };
+
+            // All page
+            Content = new StackLayout
+            {
+                Children =
+                {
+                    pageLayout,
+                    modalContent
+                }
+            };
+
+            # region Events
+            addConsButton.Clicked += (o, e) =>
+            {
+                modalContent.IsVisible = true;
+            };
+
+            okButton.Clicked += (o, e) =>
+            {
+                modalContent.IsVisible = false;
+                App.GetDataBase().AddConsumption(new Consumption
+                {
+                    ConsumptionName = consNameEntry.Text,
+                    ConsumptionPrice = double.Parse(consPriceEntry.Text),
+                    DayId = day.Id
+                });
+            };
+
+            cancelButton.Clicked += (o, e) =>
+            {
+                modalContent.IsVisible = false;
+            };
+            #endregion
         }
 
-        async private void AddConsButton_Clicked(object sender, EventArgs e)
+        public double GetDailyComsumptions(Day day)
         {
-            var addConsModal = new AddConsModal();
-            addConsModal.BindingContext = BindingContext;
-            await Navigation.PushModalAsync(addConsModal);
+            DataBase db = App.GetDataBase();
+            return db.GetConsumptions(day).Sum(c => c.ConsumptionPrice);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using BudgetTracker.DataBaseModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,28 +16,50 @@ namespace BudgetTracker.Pages
     {
         public MonthsPage()
         {
+            AdjustDataBase();
+
             IEnumerable<Month> months = App.GetDataBase().GetMonths();
-            MonthsListView.ItemsSource = months;
 
             var monthInfoBox = new DataTemplate(typeof(TextCell));
-            monthInfoBox.SetBinding(TextCell.TextProperty, new Binding("MonthDate", stringFormat:"{0:D}"));
-            monthInfoBox.SetValue(TextCell.DetailProperty, GetMonthlyConsumption(BindingContext as Month));
+            monthInfoBox.SetBinding(TextCell.TextProperty, new Binding("MonthDate", stringFormat: "{0:D}"));
 
-            MonthsListView.ItemTemplate = monthInfoBox;
+            ListView monthsListView = new ListView
+            {
+                ItemsSource = months,
+                ItemTemplate = monthInfoBox
+            };
+
+            Content = new ScrollView
+            {
+                Content = new StackLayout
+                {
+                    Children =
+                    {
+                        monthsListView
+                    }
+                }
+            };
+
+            monthsListView.ItemSelected += (o, e) => {
+                var daysPage = new DaysPage(e.SelectedItem as Month);
+                Navigation.PushAsync(daysPage);
+            };
         }
 
-        public double GetMonthlyConsumption(Month month)
+        // OnStart lifecycle method not working
+        public void AdjustDataBase()
         {
             DataBase db = App.GetDataBase();
-            IEnumerable<Day> days = db.GetDays(month);
-            return days.Sum(d => db.GetConsumptions(d).Sum(c => c.ConsumptionPrice));
-        }
 
-        async private void MonthsListView_ItemTapped(object sender, ItemTappedEventArgs e)
-        {
-            var daysPage = new DaysPage();
-            daysPage.BindingContext = e.Item;
-            await Navigation.PushAsync(daysPage);
+            IEnumerable<Month> months = db.GetMonths();
+            if (months.Count() == 0 || months.OrderBy(m => m.MonthDate).Last().MonthDate.Month != DateTime.Today.Month)
+                db.AddMonth();
+
+            Month lastMonth = months.OrderBy(m => m.MonthDate).Last();
+
+            IEnumerable<Day> days = db.GetDays(lastMonth);
+            if (days.Count() == 0 || days.OrderBy(d => d.DayDate).Last().DayDate.Day != DateTime.Today.Day)
+                db.AddDay(lastMonth);
         }
     }
 }
