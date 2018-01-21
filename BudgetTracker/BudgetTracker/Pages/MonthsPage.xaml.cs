@@ -18,7 +18,7 @@ namespace BudgetTracker.Pages
         {
             AdjustDataBase();
 
-            IEnumerable<Month> months = App.GetDataBase().GetMonths();
+            List<Month> months = App.GetDataBase().GetMonths().ToList();
 
             var monthInfoBox = new DataTemplate(typeof(TextCell));
             monthInfoBox.SetBinding(TextCell.TextProperty, new Binding("MonthDate", stringFormat: "{0:D}"));
@@ -41,8 +41,12 @@ namespace BudgetTracker.Pages
             };
 
             monthsListView.ItemSelected += (o, e) => {
-                var daysPage = new DaysPage(e.SelectedItem as Month);
-                Navigation.PushAsync(daysPage);
+                if (e.SelectedItem != null)
+                {
+                    var daysPage = new DaysPage(e.SelectedItem as Month);
+                    monthsListView.SelectedItem = null;
+                    Navigation.PushAsync(daysPage);
+                }
             };
         }
 

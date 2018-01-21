@@ -1,6 +1,8 @@
 ﻿using BudgetTracker.DataBaseModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,9 +18,10 @@ namespace BudgetTracker.Pages
         public ConsumptionsPage(Day day)
         {
             Label dailyComsumptions = new Label();
-            dailyComsumptions.Text = GetDailyComsumptions(day).ToString();
+            double dailyCons = GetDailyComsumptions(day);
+            dailyComsumptions.Text = dailyCons.ToString();
 
-            IEnumerable<Consumption> comsumptions = App.GetDataBase().GetConsumptions(day);
+            List<Consumption> enumerableConsumptions = App.GetDataBase().GetConsumptions(day).ToList();
 
             var consumptionInfoBox = new DataTemplate(typeof(TextCell));
             consumptionInfoBox.SetBinding(TextCell.TextProperty, new Binding("ConsumptionName"));
@@ -26,7 +29,7 @@ namespace BudgetTracker.Pages
 
             ListView consumptionsListView = new ListView
             {
-                ItemsSource = comsumptions,
+                ItemsSource = enumerableConsumptions,
                 ItemTemplate = consumptionInfoBox
             };
 
@@ -116,17 +119,28 @@ namespace BudgetTracker.Pages
             okButton.Clicked += (o, e) =>
             {
                 modalContent.IsVisible = false;
-                App.GetDataBase().AddConsumption(new Consumption
+                Consumption newCons = new Consumption
                 {
                     ConsumptionName = consNameEntry.Text,
                     ConsumptionPrice = double.Parse(consPriceEntry.Text),
                     DayId = day.Id
-                });
+                };
+                App.GetDataBase().AddConsumption(newCons);
+
+                consNameEntry.Text = null;
+                consPriceEntry.Text = null;
+
+                // Modifying observable collection and label
+                enumerableConsumptions.Add(newCons);
+                dailyCons += newCons.ConsumptionPrice;
+                dailyComsumptions.Text = dailyCons.ToString();
             };
 
             cancelButton.Clicked += (o, e) =>
             {
                 modalContent.IsVisible = false;
+                consNameEntry.Text = null;
+                consPriceEntry.Text = null;
             };
             #endregion
         }

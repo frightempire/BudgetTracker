@@ -18,7 +18,7 @@ namespace BudgetTracker.Pages
             Label monthlyConsumptions = new Label();
             monthlyConsumptions.Text = GetMonthlyConsumption(month).ToString();
 
-            IEnumerable<Day> days = App.GetDataBase().GetDays(month);
+            List<Day> days = App.GetDataBase().GetDays(month).ToList();
 
             var dayInfoBox = new DataTemplate(typeof(TextCell));
             dayInfoBox.SetBinding(TextCell.TextProperty, new Binding("DayDate", stringFormat: "{0:MMMM d}"));
@@ -40,8 +40,12 @@ namespace BudgetTracker.Pages
 
             daysListView.ItemSelected += (o, e) =>
             {
-                var consumptionsPage = new ConsumptionsPage(e.SelectedItem as Day);
-                Navigation.PushAsync(consumptionsPage);
+                if (e.SelectedItem != null)
+                {
+                    var consumptionsPage = new ConsumptionsPage(e.SelectedItem as Day);
+                    daysListView.SelectedItem = null;
+                    Navigation.PushAsync(consumptionsPage);
+                }
             };
         }
 
