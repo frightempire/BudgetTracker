@@ -13,12 +13,16 @@ namespace BudgetTracker.Pages
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class DaysPage : ContentPage
     {
+        private Label monthlyConsumptions = new Label();
+        private Month pageMonth;
+
         public DaysPage(Month month)
         {
-            Label monthlyConsumptions = new Label();
-            monthlyConsumptions.Text = GetMonthlyConsumption(month).ToString();
+            pageMonth = month;
 
-            List<Day> days = App.GetDataBase().GetDays(month).ToList();
+            monthlyConsumptions.Text = GetMonthlyConsumption(pageMonth).ToString();
+
+            List<Day> days = App.GetDataBase().GetDays(pageMonth).ToList();
 
             var dayInfoBox = new DataTemplate(typeof(TextCell));
             dayInfoBox.SetBinding(TextCell.TextProperty, new Binding("DayDate", stringFormat: "{0:MMMM d}"));
@@ -54,6 +58,12 @@ namespace BudgetTracker.Pages
             DataBase db = App.GetDataBase();
             IEnumerable<Day> days = db.GetDays(month);
             return days.Sum(d => db.GetConsumptions(d).Sum(c => c.ConsumptionPrice));
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            monthlyConsumptions.Text = GetMonthlyConsumption(pageMonth).ToString();
         }
     }
 }
