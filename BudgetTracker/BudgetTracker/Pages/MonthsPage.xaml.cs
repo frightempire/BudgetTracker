@@ -21,7 +21,7 @@ namespace BudgetTracker.Pages
             List<Month> months = App.GetDataBase().GetMonths().ToList();
 
             var monthInfoBox = new DataTemplate(typeof(TextCell));
-            monthInfoBox.SetBinding(TextCell.TextProperty, new Binding("MonthDate", stringFormat: "{0:D}"));
+            monthInfoBox.SetBinding(TextCell.TextProperty, new Binding("MonthDate", stringFormat: "{0:Y}"));
 
             ListView monthsListView = new ListView
             {

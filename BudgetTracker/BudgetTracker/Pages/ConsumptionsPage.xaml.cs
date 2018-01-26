@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,13 +16,17 @@ namespace BudgetTracker.Pages
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ConsumptionsPage : ContentPage
     {
+        private Label dailyComsumptions = new Label();
+        private Label personalDailyConsumptions = new Label();
+        private Label cooperativeDailyConsumptions = new Label();
+        private Day pageDay;
+
         public ConsumptionsPage(Day day)
         {
-            Label dailyComsumptions = new Label();
-            double dailyCons = GetDailyComsumptions(day);
-            dailyComsumptions.Text = dailyCons.ToString();
+            pageDay = day;
+            SetConsumptions();
 
-            List<Consumption> enumerableConsumptions = App.GetDataBase().GetConsumptions(day).ToList();
+            List<Consumption> consumptions = App.GetDataBase().GetConsumptions(day).ToList();
 
             var consumptionInfoBox = new DataTemplate(typeof(TextCell));
             consumptionInfoBox.SetBinding(TextCell.TextProperty, new Binding("ConsumptionName"));
@@ -29,7 +34,7 @@ namespace BudgetTracker.Pages
 
             ListView consumptionsListView = new ListView
             {
-                ItemsSource = enumerableConsumptions,
+                ItemsSource = consumptions,
                 ItemTemplate = consumptionInfoBox
             };
 
@@ -42,6 +47,8 @@ namespace BudgetTracker.Pages
             {
                 Children =
                 {
+                    personalDailyConsumptions,
+                    cooperativeDailyConsumptions,
                     dailyComsumptions,
                     consumptionsListView,
                     addConsButton
@@ -56,12 +63,17 @@ namespace BudgetTracker.Pages
                 Text = "Add consumption"
             };
 
-            Entry consNameEntry = new Entry
+            EntryCell consNameEntry = new EntryCell
             {
                 Placeholder = "Name"
             };
 
-            Entry consPriceEntry = new Entry
+            SwitchCell consCoop = new SwitchCell
+            {
+                Text = "Cooperative consumptions?"
+            };
+
+            EntryCell consPriceEntry = new EntryCell
             {
                 Placeholder = "Price"
             };
@@ -85,6 +97,20 @@ namespace BudgetTracker.Pages
                 }
             };
 
+            TableView modalTable = new TableView
+            {
+                Intent = TableIntent.Form,
+                Root = new TableRoot
+                {
+                    new TableSection
+                    {
+                        consNameEntry,
+                        consCoop,
+                        consPriceEntry
+                    }
+                }
+            };
+
             ContentView modalContent = new ContentView
             {
                 IsVisible = false,
@@ -93,8 +119,7 @@ namespace BudgetTracker.Pages
                     Children =
                     {
                         topModalLabel,
-                        consNameEntry,
-                        consPriceEntry,
+                        modalTable,
                         modalButtonsLayout
                     }
                 }
@@ -122,6 +147,7 @@ namespace BudgetTracker.Pages
                 Consumption newCons = new Consumption
                 {
                     ConsumptionName = consNameEntry.Text,
+                    CooperationalConsumption = consCoop.On,
                     ConsumptionPrice = double.Parse(consPriceEntry.Text),
                     DayId = day.Id
                 };
@@ -131,9 +157,8 @@ namespace BudgetTracker.Pages
                 consPriceEntry.Text = null;
 
                 // Modifying observable collection and label
-                enumerableConsumptions.Add(newCons);
-                dailyCons += newCons.ConsumptionPrice;
-                dailyComsumptions.Text = dailyCons.ToString();
+                consumptions.Add(newCons);
+                SetConsumptions();
             };
 
             cancelButton.Clicked += (o, e) =>
@@ -145,10 +170,20 @@ namespace BudgetTracker.Pages
             #endregion
         }
 
-        public double GetDailyComsumptions(Day day)
+        public void SetConsumptions()
+        {
+            double personalConsumptions = GetDailyConsumptions(pageDay, false);
+            double cooperativeConsumptions = GetDailyConsumptions(pageDay, true);
+            double totalConsumptions = personalConsumptions + cooperativeConsumptions;
+            personalDailyConsumptions.Text = personalConsumptions.ToString() + " + ";
+            cooperativeDailyConsumptions.Text = cooperativeConsumptions.ToString() + " = ";
+            dailyComsumptions.Text = totalConsumptions.ToString();
+        }
+
+        public double GetDailyConsumptions(Day day, bool coop)
         {
             DataBase db = App.GetDataBase();
-            return db.GetConsumptions(day).Sum(c => c.ConsumptionPrice);
+            return db.GetConsumptions(day).Where(c => c.CooperationalConsumption == coop).Sum(c => c.ConsumptionPrice);
         }
     }
 }
