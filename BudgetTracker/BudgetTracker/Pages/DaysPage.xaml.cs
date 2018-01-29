@@ -1,6 +1,7 @@
 ﻿using BudgetTracker.DataBaseModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,9 +14,24 @@ namespace BudgetTracker.Pages
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class DaysPage : ContentPage
     {
-        private Label monthlyConsumptions = new Label();
-        private Label personalMonthlyConsumptions = new Label();
-        private Label cooperativeMonthlyConsumptions = new Label();
+        private Label monthlyConsumptions = new Label
+        {
+            FontSize = 25,
+            HorizontalOptions = LayoutOptions.CenterAndExpand
+        };
+
+        private Label personalMonthlyConsumptions = new Label()
+        {
+            FontSize = 25,
+            HorizontalOptions = LayoutOptions.CenterAndExpand
+        };
+
+        private Label cooperativeMonthlyConsumptions = new Label()
+        {
+            FontSize = 25,
+            HorizontalOptions = LayoutOptions.CenterAndExpand
+        };
+
         private Month pageMonth;
 
         public DaysPage(Month month)
@@ -24,9 +40,7 @@ namespace BudgetTracker.Pages
             SetConsumptions();
 
             List<Day> days = App.GetDataBase().GetDays(pageMonth).ToList();
-
-            var dayInfoBox = new DataTemplate(typeof(TextCell));
-            dayInfoBox.SetBinding(TextCell.TextProperty, new Binding("DayDate", stringFormat: "{0:M}"));
+            var dayInfoBox = new DataTemplate(typeof(DayCustomCell));
 
             ListView daysListView = new ListView
             {
@@ -34,13 +48,40 @@ namespace BudgetTracker.Pages
                 ItemTemplate = dayInfoBox
             };
 
-            Content = new StackLayout
+            // Top labels
+            Label plus = new Label
+            {
+                Text = "+",
+                FontSize = 25,
+                HorizontalOptions = LayoutOptions.CenterAndExpand
+            };
+
+            StackLayout consFirstRowLabels = new StackLayout
             {
                 Children =
                 {
                     personalMonthlyConsumptions,
-                    cooperativeMonthlyConsumptions,
-                    monthlyConsumptions,
+                    plus,
+                    cooperativeMonthlyConsumptions
+                },
+                Orientation = StackOrientation.Horizontal
+            };
+
+            StackLayout topLabels = new StackLayout
+            {
+                Children =
+                {
+                    consFirstRowLabels,
+                    monthlyConsumptions
+                }
+            };
+
+            // All page
+            Content = new StackLayout
+            {
+                Children =
+                {
+                    topLabels,
                     daysListView
                 }
             };
@@ -61,8 +102,8 @@ namespace BudgetTracker.Pages
             double personalConsumptions = GetMonthlyConsumptions(pageMonth, false);
             double cooperativeConsumptions = GetMonthlyConsumptions(pageMonth, true);
             double totalConsumptions = personalConsumptions + cooperativeConsumptions;
-            personalMonthlyConsumptions.Text = personalConsumptions.ToString() + " + ";
-            cooperativeMonthlyConsumptions.Text = cooperativeConsumptions.ToString() + " = ";
+            personalMonthlyConsumptions.Text = personalConsumptions.ToString();
+            cooperativeMonthlyConsumptions.Text = cooperativeConsumptions.ToString();
             monthlyConsumptions.Text = totalConsumptions.ToString();
         }
 
@@ -77,6 +118,44 @@ namespace BudgetTracker.Pages
         {
             base.OnAppearing();
             SetConsumptions();
+        }
+    }
+
+    public class DayCustomCell: ViewCell
+    {
+        public DayCustomCell()
+        {
+            Label cellLabel = new Label
+            {
+                FontSize = 30,
+                HorizontalOptions = LayoutOptions.FillAndExpand,
+                HorizontalTextAlignment = TextAlignment.Center,
+            };
+            cellLabel.SetBinding(Label.TextProperty, new Binding("DayDate", stringFormat: "{0:M}"));
+            cellLabel.SetBinding(Label.BackgroundColorProperty, new Binding("DayDate") { Converter = new DayDateToColorConverter() });
+
+            View = cellLabel;
+        }
+    }
+
+    public class DayDateToColorConverter: IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            DateTime date = (DateTime)value;
+            switch(date.DayOfWeek)
+            {
+                case DayOfWeek.Saturday:
+                case DayOfWeek.Sunday:
+                    return Color.DeepSkyBlue;
+                default:
+                    return Color.White;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new Exception("Functionality not supported");
         }
     }
 }

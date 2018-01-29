@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
@@ -16,9 +17,24 @@ namespace BudgetTracker.Pages
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ConsumptionsPage : ContentPage
     {
-        private Label dailyComsumptions = new Label();
-        private Label personalDailyConsumptions = new Label();
-        private Label cooperativeDailyConsumptions = new Label();
+        private Label dailyComsumptions = new Label
+        {
+            FontSize = 25,
+            HorizontalOptions = LayoutOptions.CenterAndExpand
+        };
+
+        private Label personalDailyConsumptions = new Label
+        {
+            FontSize = 25,
+            HorizontalOptions = LayoutOptions.CenterAndExpand
+        };
+
+        private Label cooperativeDailyConsumptions = new Label
+        {
+            FontSize = 25,
+            HorizontalOptions = LayoutOptions.CenterAndExpand
+        };
+
         private Day pageDay;
 
         public ConsumptionsPage(Day day)
@@ -26,13 +42,38 @@ namespace BudgetTracker.Pages
             pageDay = day;
             SetConsumptions();
 
-            List<Consumption> consumptions = App.GetDataBase().GetConsumptions(day).ToList();
+            List<Consumption> consumptions = App.GetDataBase().GetConsumptions(pageDay).ToList();
+            var consumptionInfoBox = new DataTemplate(typeof(ConsumptionCustomCell));
 
-            var consumptionInfoBox = new DataTemplate(typeof(TextCell));
-            consumptionInfoBox.SetBinding(TextCell.TextProperty, new Binding("ConsumptionName"));
-            consumptionInfoBox.SetBinding(TextCell.DetailProperty, new Binding("ConsumptionPrice", stringFormat: "{0:C}"));
+            // Page content
+            Label plus = new Label
+            {
+                Text = "+",
+                FontSize = 25,
+                HorizontalOptions = LayoutOptions.CenterAndExpand
+            };
 
-            ListView consumptionsListView = new ListView
+            StackLayout consFirstRowLabels = new StackLayout
+            {
+                Children =
+                {
+                    personalDailyConsumptions,
+                    plus,
+                    cooperativeDailyConsumptions
+                },
+                Orientation = StackOrientation.Horizontal
+            };
+
+            StackLayout topLabels = new StackLayout
+            {
+                Children =
+                {
+                    consFirstRowLabels,
+                    dailyComsumptions
+                }
+            };
+
+            ListView consumptionsList = new ListView
             {
                 ItemsSource = consumptions,
                 ItemTemplate = consumptionInfoBox
@@ -43,23 +84,25 @@ namespace BudgetTracker.Pages
                 Text = "Add consumption"
             };
 
-            StackLayout pageLayout = new StackLayout
+            StackLayout pageStack = new StackLayout
             {
                 Children =
                 {
-                    personalDailyConsumptions,
-                    cooperativeDailyConsumptions,
-                    dailyComsumptions,
-                    consumptionsListView,
+                    topLabels,
+                    consumptionsList,
                     addConsButton
                 }
             };
 
             // Modal window
-            Label topModalLabel = new Label
+            Label modalLabel = new Label
             {
                 BackgroundColor = Color.Black,
+                TextColor = Color.White,
                 HorizontalOptions = LayoutOptions.Fill,
+                FontSize = 20,
+                HorizontalTextAlignment = TextAlignment.Center,
+                VerticalTextAlignment = TextAlignment.Center,
                 Text = "Add consumption"
             };
 
@@ -80,21 +123,25 @@ namespace BudgetTracker.Pages
 
             Button okButton = new Button
             {
-                Text = "OK"
+                Text = "OK",
+                HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
             Button cancelButton = new Button
             {
-                Text = "Cancel"
+                Text = "Cancel",
+                HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
-            StackLayout modalButtonsLayout = new StackLayout
+            StackLayout modalButtons = new StackLayout
             {
                 Children =
                 {
                     okButton,
                     cancelButton
-                }
+                },
+                Orientation = StackOrientation.Horizontal,
+                HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
             TableView modalTable = new TableView
@@ -114,36 +161,45 @@ namespace BudgetTracker.Pages
             ContentView modalContent = new ContentView
             {
                 IsVisible = false,
+                BackgroundColor = Color.White,
                 Content = new StackLayout
                 {
                     Children =
                     {
-                        topModalLabel,
+                        modalLabel,
                         modalTable,
-                        modalButtonsLayout
+                        modalButtons
                     }
                 }
             };
 
-            // All page
-            Content = new StackLayout
+            // Page content + Modal window
+            Content = new AbsoluteLayout
             {
                 Children =
                 {
-                    pageLayout,
+                    pageStack,
                     modalContent
                 }
             };
 
-            # region Events
+            AbsoluteLayout.SetLayoutBounds(pageStack, new Rectangle(0, 0, 1, 1));
+            AbsoluteLayout.SetLayoutFlags(pageStack, AbsoluteLayoutFlags.All);
+            AbsoluteLayout.SetLayoutBounds(modalContent, new Rectangle(0.5, 0.3, 0.75, 0.45));
+            AbsoluteLayout.SetLayoutFlags(modalContent, AbsoluteLayoutFlags.All);
+
+            # region Button events
             addConsButton.Clicked += (o, e) =>
             {
                 modalContent.IsVisible = true;
+                pageStack.BackgroundColor = Color.Gray;
             };
 
             okButton.Clicked += (o, e) =>
             {
                 modalContent.IsVisible = false;
+                pageStack.BackgroundColor = Color.White;
+
                 Consumption newCons = new Consumption
                 {
                     ConsumptionName = consNameEntry.Text,
@@ -156,18 +212,83 @@ namespace BudgetTracker.Pages
                 consNameEntry.Text = null;
                 consPriceEntry.Text = null;
 
-                // Modifying observable collection and label
+                // Modifying collection and labels
                 consumptions.Add(newCons);
                 SetConsumptions();
+                // Workaround with listView height not updating
+                consumptionsList.ItemsSource = null;
+                consumptionsList.ItemsSource = consumptions;
+
             };
 
             cancelButton.Clicked += (o, e) =>
             {
                 modalContent.IsVisible = false;
+                pageStack.BackgroundColor = Color.White;
+
                 consNameEntry.Text = null;
                 consPriceEntry.Text = null;
             };
             #endregion
+        }
+
+        public class ConsumptionCustomCell: ViewCell
+        {
+            public ConsumptionCustomCell()
+            {
+                Label nameLabel = new Label
+                {
+                    FontSize = 25,
+                    HorizontalOptions = LayoutOptions.CenterAndExpand
+                };
+
+                Label priceLabel = new Label
+                {
+                    FontSize = 25,
+                    HorizontalOptions = LayoutOptions.CenterAndExpand
+                };
+
+                Label coopLabel = new Label
+                {
+                    FontSize = 25,
+                    HorizontalOptions = LayoutOptions.CenterAndExpand
+                };
+
+                StackLayout info = new StackLayout
+                {
+                    Children =
+                    {
+                        nameLabel,
+                        priceLabel,
+                        coopLabel
+                    },
+                    Orientation = StackOrientation.Horizontal
+                };
+
+                nameLabel.SetBinding(Label.TextProperty, new Binding("ConsumptionName"));
+                priceLabel.SetBinding(Label.TextProperty, new Binding("ConsumptionPrice", stringFormat: "{0} грн."));
+                coopLabel.SetBinding(Label.TextProperty, new Binding("CooperationalConsumption") { Converter = new BooleanToSignConverter() });
+
+                View = info;
+                View.HeightRequest = 45;
+            }
+        }
+
+        public class BooleanToSignConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                bool coop = (bool)value;
+                if (coop)
+                    return "+";
+                else
+                    return "-";
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new Exception("Functionality not supported");
+            }
         }
 
         public void SetConsumptions()
@@ -175,8 +296,8 @@ namespace BudgetTracker.Pages
             double personalConsumptions = GetDailyConsumptions(pageDay, false);
             double cooperativeConsumptions = GetDailyConsumptions(pageDay, true);
             double totalConsumptions = personalConsumptions + cooperativeConsumptions;
-            personalDailyConsumptions.Text = personalConsumptions.ToString() + " + ";
-            cooperativeDailyConsumptions.Text = cooperativeConsumptions.ToString() + " = ";
+            personalDailyConsumptions.Text = personalConsumptions.ToString();
+            cooperativeDailyConsumptions.Text = cooperativeConsumptions.ToString();
             dailyComsumptions.Text = totalConsumptions.ToString();
         }
 
