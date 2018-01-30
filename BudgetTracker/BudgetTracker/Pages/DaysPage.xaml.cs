@@ -133,7 +133,7 @@ namespace BudgetTracker.Pages
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 HorizontalTextAlignment = TextAlignment.Center,
             };
-            cellLabel.SetBinding(Label.TextProperty, new Binding("DayDate", stringFormat: "{0:M}"));
+            cellLabel.SetBinding(Label.TextProperty, new Binding("DayDate", stringFormat: "{0:dddd, d}"));
             cellLabel.SetBinding(Label.BackgroundColorProperty, new Binding("DayDate") { Converter = new DayDateToColorConverter() });
 
             View = cellLabel;
@@ -149,7 +149,7 @@ namespace BudgetTracker.Pages
             {
                 case DayOfWeek.Saturday:
                 case DayOfWeek.Sunday:
-                    return Color.DeepSkyBlue;
+                    return Color.SpringGreen;
                 default:
                     return Color.White;
             }

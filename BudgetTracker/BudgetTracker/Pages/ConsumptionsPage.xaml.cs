@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Xamarin.Forms;
@@ -81,7 +82,9 @@ namespace BudgetTracker.Pages
 
             Button addConsButton = new Button
             {
-                Text = "Add consumption"
+                Text = "Add consumption",
+                BackgroundColor = Color.White,
+                FontSize = 20
             };
 
             StackLayout pageStack = new StackLayout
@@ -199,28 +202,31 @@ namespace BudgetTracker.Pages
 
             okButton.Clicked += (o, e) =>
             {
-                modalContent.IsVisible = false;
-                pageStack.BackgroundColor = Color.White;
-
-                Consumption newCons = new Consumption
+                Regex regex = new Regex("^[0-9]+(.|,)[0-9]+|^[0-9]+$");
+                if (regex.IsMatch(consPriceEntry.Text))
                 {
-                    ConsumptionName = consNameEntry.Text,
-                    CooperationalConsumption = consCoop.On,
-                    ConsumptionPrice = double.Parse(consPriceEntry.Text),
-                    DayId = day.Id
-                };
-                App.GetDataBase().AddConsumption(newCons);
+                    modalContent.IsVisible = false;
+                    pageStack.BackgroundColor = Color.Default;
 
-                consNameEntry.Text = null;
-                consPriceEntry.Text = null;
+                    Consumption newCons = new Consumption
+                    {
+                        ConsumptionName = consNameEntry.Text,
+                        CooperationalConsumption = consCoop.On,
+                        ConsumptionPrice = double.Parse(consPriceEntry.Text),
+                        DayId = day.Id
+                    };
+                    App.GetDataBase().AddConsumption(newCons);
 
-                // Modifying collection and labels
-                consumptions.Add(newCons);
-                SetConsumptions();
-                // Workaround with listView height not updating
-                consumptionsList.ItemsSource = null;
-                consumptionsList.ItemsSource = consumptions;
+                    consNameEntry.Text = null;
+                    consPriceEntry.Text = null;
 
+                    // Modifying collection and labels
+                    consumptions.Add(newCons);
+                    SetConsumptions();
+                    // Workaround with listView height not updating
+                    consumptionsList.ItemsSource = null;
+                    consumptionsList.ItemsSource = consumptions;
+                }
             };
 
             cancelButton.Clicked += (o, e) =>
@@ -242,19 +248,23 @@ namespace BudgetTracker.Pages
                 {
                     FontSize = 12,
                     HorizontalOptions = LayoutOptions.StartAndExpand,
+                    VerticalOptions = LayoutOptions.Center,
                     Margin = 5
                 };
 
                 Label priceLabel = new Label
                 {
                     FontSize = 20,
-                    HorizontalOptions = LayoutOptions.EndAndExpand
+                    TextColor = Color.DarkRed,
+                    HorizontalOptions = LayoutOptions.EndAndExpand,
+                    VerticalOptions = LayoutOptions.Center
                 };
 
                 Label coopLabel = new Label
                 {
                     FontSize = 20,
                     HorizontalOptions = LayoutOptions.EndAndExpand,
+                    VerticalOptions = LayoutOptions.Center,
                     Margin = 5
                 };
 
@@ -275,7 +285,8 @@ namespace BudgetTracker.Pages
                 coopLabel.SetBinding(Label.TextProperty, new Binding("CooperationalConsumption") { Converter = new BooleanToSignConverter() });
 
                 View = info;
-                View.HeightRequest = 45;
+                View.BackgroundColor = Color.White;
+                View.HeightRequest = 50;
             }
         }
 
