@@ -86,6 +86,8 @@ namespace BudgetTracker.Pages
                 }
             };
 
+            Title = "Дни";
+
             daysListView.ItemSelected += (o, e) =>
             {
                 if (e.SelectedItem != null)

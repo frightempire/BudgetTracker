@@ -39,6 +39,9 @@ namespace BudgetTracker.Pages
                 }
             };
 
+            Title = "Месяца";
+            
+
             monthsListView.ItemSelected += (o, e) => {
                 if (e.SelectedItem != null)
                 {

@@ -188,6 +188,8 @@ namespace BudgetTracker.Pages
             AbsoluteLayout.SetLayoutBounds(modalContent, new Rectangle(0.5, 0.3, 0.75, 0.45));
             AbsoluteLayout.SetLayoutFlags(modalContent, AbsoluteLayoutFlags.All);
 
+            Title = "Потребление";
+
             # region Button events
             addConsButton.Clicked += (o, e) =>
             {
@@ -238,20 +240,22 @@ namespace BudgetTracker.Pages
             {
                 Label nameLabel = new Label
                 {
-                    FontSize = 25,
-                    HorizontalOptions = LayoutOptions.CenterAndExpand
+                    FontSize = 12,
+                    HorizontalOptions = LayoutOptions.StartAndExpand,
+                    Margin = 5
                 };
 
                 Label priceLabel = new Label
                 {
-                    FontSize = 25,
-                    HorizontalOptions = LayoutOptions.CenterAndExpand
+                    FontSize = 20,
+                    HorizontalOptions = LayoutOptions.EndAndExpand
                 };
 
                 Label coopLabel = new Label
                 {
-                    FontSize = 25,
-                    HorizontalOptions = LayoutOptions.CenterAndExpand
+                    FontSize = 20,
+                    HorizontalOptions = LayoutOptions.EndAndExpand,
+                    Margin = 5
                 };
 
                 StackLayout info = new StackLayout
@@ -263,6 +267,7 @@ namespace BudgetTracker.Pages
                         coopLabel
                     },
                     Orientation = StackOrientation.Horizontal
+
                 };
 
                 nameLabel.SetBinding(Label.TextProperty, new Binding("ConsumptionName"));
