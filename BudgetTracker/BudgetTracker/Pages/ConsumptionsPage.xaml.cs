@@ -18,21 +18,24 @@ namespace BudgetTracker.Pages
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ConsumptionsPage : ContentPage
     {
-        private Label dailyComsumptions = new Label
+        private Label dailyConsumptions = new Label
         {
             FontSize = 25,
+            TextColor = Color.DarkRed,
             HorizontalOptions = LayoutOptions.CenterAndExpand
         };
 
         private Label personalDailyConsumptions = new Label
         {
             FontSize = 25,
+            TextColor = Color.DarkRed,
             HorizontalOptions = LayoutOptions.CenterAndExpand
         };
 
         private Label cooperativeDailyConsumptions = new Label
         {
             FontSize = 25,
+            TextColor = Color.DarkRed,
             HorizontalOptions = LayoutOptions.CenterAndExpand
         };
 
@@ -54,24 +57,24 @@ namespace BudgetTracker.Pages
                 HorizontalOptions = LayoutOptions.CenterAndExpand
             };
 
-            StackLayout consFirstRowLabels = new StackLayout
+            Label equal = new Label
             {
-                Children =
-                {
-                    personalDailyConsumptions,
-                    plus,
-                    cooperativeDailyConsumptions
-                },
-                Orientation = StackOrientation.Horizontal
+                Text = "=",
+                FontSize = 25,
+                HorizontalOptions = LayoutOptions.CenterAndExpand
             };
 
             StackLayout topLabels = new StackLayout
             {
                 Children =
                 {
-                    consFirstRowLabels,
-                    dailyComsumptions
-                }
+                    personalDailyConsumptions,
+                    plus,
+                    cooperativeDailyConsumptions,
+                    equal,
+                    dailyConsumptions
+                },
+                Orientation = StackOrientation.Horizontal
             };
 
             ListView consumptionsList = new ListView
@@ -312,9 +315,9 @@ namespace BudgetTracker.Pages
             double personalConsumptions = GetDailyConsumptions(pageDay, false);
             double cooperativeConsumptions = GetDailyConsumptions(pageDay, true);
             double totalConsumptions = personalConsumptions + cooperativeConsumptions;
-            personalDailyConsumptions.Text = personalConsumptions.ToString();
-            cooperativeDailyConsumptions.Text = cooperativeConsumptions.ToString();
-            dailyComsumptions.Text = totalConsumptions.ToString();
+            personalDailyConsumptions.Text = personalConsumptions.ToString() + " (P)";
+            cooperativeDailyConsumptions.Text = cooperativeConsumptions.ToString() + " (C)";
+            dailyConsumptions.Text = totalConsumptions.ToString() + " грн.";
         }
 
         public double GetDailyConsumptions(Day day, bool coop)

@@ -17,18 +17,21 @@ namespace BudgetTracker.Pages
         private Label monthlyConsumptions = new Label
         {
             FontSize = 25,
+            TextColor = Color.DarkRed,
             HorizontalOptions = LayoutOptions.CenterAndExpand
         };
 
         private Label personalMonthlyConsumptions = new Label()
         {
             FontSize = 25,
+            TextColor = Color.DarkRed,
             HorizontalOptions = LayoutOptions.CenterAndExpand
         };
 
         private Label cooperativeMonthlyConsumptions = new Label()
         {
             FontSize = 25,
+            TextColor = Color.DarkRed,
             HorizontalOptions = LayoutOptions.CenterAndExpand
         };
 
@@ -56,24 +59,24 @@ namespace BudgetTracker.Pages
                 HorizontalOptions = LayoutOptions.CenterAndExpand
             };
 
-            StackLayout consFirstRowLabels = new StackLayout
+            Label equal = new Label
             {
-                Children =
-                {
-                    personalMonthlyConsumptions,
-                    plus,
-                    cooperativeMonthlyConsumptions
-                },
-                Orientation = StackOrientation.Horizontal
+                Text = "=",
+                FontSize = 25,
+                HorizontalOptions = LayoutOptions.CenterAndExpand
             };
 
             StackLayout topLabels = new StackLayout
             {
                 Children =
                 {
-                    consFirstRowLabels,
+                    personalMonthlyConsumptions,
+                    plus,
+                    cooperativeMonthlyConsumptions,
+                    equal,
                     monthlyConsumptions
-                }
+                },
+                Orientation = StackOrientation.Horizontal
             };
 
             // All page
@@ -104,9 +107,9 @@ namespace BudgetTracker.Pages
             double personalConsumptions = GetMonthlyConsumptions(pageMonth, false);
             double cooperativeConsumptions = GetMonthlyConsumptions(pageMonth, true);
             double totalConsumptions = personalConsumptions + cooperativeConsumptions;
-            personalMonthlyConsumptions.Text = personalConsumptions.ToString();
-            cooperativeMonthlyConsumptions.Text = cooperativeConsumptions.ToString();
-            monthlyConsumptions.Text = totalConsumptions.ToString();
+            personalMonthlyConsumptions.Text = personalConsumptions.ToString() + " (P)";
+            cooperativeMonthlyConsumptions.Text = cooperativeConsumptions.ToString() + " (C)";
+            monthlyConsumptions.Text = totalConsumptions.ToString() + " грн.";
         }
 
         public double GetMonthlyConsumptions(Month month, bool coop)
